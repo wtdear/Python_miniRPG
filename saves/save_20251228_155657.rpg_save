@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "save_date": "2025-12-28T15:56:57.168915",
+    "game_name": "RPG Game"
+  },
+  "character": {
+    "name": "д",
+    "class_name": "warrior",
+    "level": 1,
+    "experience": 0,
+    "experience_to_next_level": 100,
+    "attribute_points": 0,
+    "skill_points": 0,
+    "base_attributes": {
+      "health": 120,
+      "max_health": 120,
+      "mana": 30,
+      "max_mana": 30,
+      "strength": 15,
+      "agility": 8,
+      "intelligence": 5
+    },
+    "current_attributes": {
+      "health": 120,
+      "max_health": 140,
+      "mana": 30,
+      "max_mana": 30,
+      "strength": 18,
+      "agility": 8,
+      "intelligence": 5
+    }
+  },
+  "skills": [
+    {
+      "name": "Power Attack",
+      "mana_cost": 10,
+      "base_damage": 15,
+      "stat_multiplier": {
+        "strength": 1.2
+      },
+      "skill_type": "active",
+      "level": 1,
+      "description": "A powerful strike with your weapon"
+    },
+    {
+      "name": "Shield Bash",
+      "mana_cost": 15,
+      "base_damage": 10,
+      "stat_multiplier": {
+        "strength": 0.8
+      },
+      "skill_type": "active",
+      "level": 1,
+      "description": "Bash enemy with your shield"
+    },
+    {
+      "name": "Battle Cry",
+      "mana_cost": 20,
+      "base_damage": 0,
+      "stat_multiplier": {
+        "strength": 0.5
+      },
+      "skill_type": "active",
+      "level": 1,
+      "description": "Boost your strength temporarily"
+    }
+  ],
+  "inventory": [
+    {
+      "name": "Iron Sword",
+      "item_type": "weapon",
+      "stat_bonuses": {
+        "strength": 3
+      },
+      "value": 50,
+      "description": "",
+      "equipped": true
+    },
+    {
+      "name": "Leather Armor",
+      "item_type": "armor",
+      "stat_bonuses": {
+        "max_health": 20
+      },
+      "value": 30,
+      "description": "",
+      "equipped": true
+    },
+    {
+      "name": "Health Potion",
+      "item_type": "potion",
+      "stat_bonuses": {},
+      "value": 20,
+      "description": "Restores 50 HP",
+      "equipped": false
+    },
+    {
+      "name": "Mana Potion",
+      "item_type": "potion",
+      "stat_bonuses": {},
+      "value": 25,
+      "description": "Restores 30 MP",
+      "equipped": false
+    }
+  ],
+  "equipment": {
+    "weapon": {
+      "name": "Iron Sword",
+      "item_type": "weapon",
+      "stat_bonuses": {
+        "strength": 3
+      },
+      "value": 50,
+      "description": ""
+    },
+    "armor": {
+      "name": "Leather Armor",
+      "item_type": "armor",
+      "stat_bonuses": {
+        "max_health": 20
+      },
+      "value": 30,
+      "description": ""
+    }
+  }
+}

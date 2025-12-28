@@ -101,6 +101,20 @@ def enemy_turn(player, enemy):
             print_colored(f"\n{enemy.name} attacks {player.name} for {damage} damage!", "RED")
         time.sleep(1)
 
+def combat_turn(player, enemy):
+    """Один ход в бою (альтернативная упрощенная версия)"""
+    # Эта функция может использоваться для простых пошаговых боев
+    damage = calculate_player_damage(player)
+    enemy.take_damage(damage)
+    print(f"{player.name} attacks for {damage} damage!")
+    
+    if enemy.alive:
+        damage = enemy.attack(player)
+        if damage > 0:
+            print(f"{enemy.name} attacks back for {damage} damage!")
+    
+    return enemy.alive
+
 def calculate_player_damage(player):
     """Рассчитать урон от обычной атаки игрока"""
     base_damage = player.get_stat('strength') // 2
@@ -169,6 +183,15 @@ def victory(player, enemy):
         player.add_to_inventory(loot)
         print_colored(f"\nFound: {loot.name}!", "YELLOW")
     
+    # Автосохранение после победы
+    try:
+        from game_logic.save_system import save_system
+        success, message = save_system.save_game(player, "autosave")
+        if success:
+            print_colored("\nGame autosaved!", "CYAN")
+    except Exception as e:
+        print(f"Autosave failed: {e}")
+    
     time.sleep(3)
 
 def defeat(player):
@@ -187,5 +210,14 @@ def defeat(player):
     player.experience = max(0, player.experience - 50)
     player.current_attributes['health'] = player.current_attributes['max_health'] // 2
     player.current_attributes['mana'] = player.current_attributes['max_mana'] // 2
+    
+    # Автосохранение после смерти
+    try:
+        from game_logic.save_system import save_system
+        success, message = save_system.save_game(player, "death_save")
+        if success:
+            print_colored("\nGame saved before respawn!", "CYAN")
+    except Exception as e:
+        print(f"Autosave failed: {e}")
     
     time.sleep(3)

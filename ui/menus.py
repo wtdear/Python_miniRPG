@@ -12,6 +12,7 @@ from config import CLASS_CONFIG, SKILL_CONFIG, STARTING_EQUIPMENT
 from .display import clear_screen, show_header, show_character_stats
 from game_logic.combat import start_combat
 from game_logic.character_creator import create_character_class
+from game_logic.save_system import save_system
 
 def main_menu():
     """Главное меню игры"""
@@ -37,18 +38,25 @@ def main_menu():
         print("    (                                                      (       ")
         print("     )        The main goal is to complete the game!        )      ")
         print("    (                                                      (       ")
-        print("     )         Do you want to start your adventure?         )      ")
-        print("    (                        ( Y \ N )                     (       ")
+        print("     )                1. 🎮 NEW GAME                        )      ")
+        print("    (                  Start a new adventure               (       ")
+        print("     )                                                     )       ")
+        print("    (                 2. 📂 LOAD GAME                      (       ")
+        print("     )                 Continue your adventure             )       ")
+        print("    (                                                      (       ")
+        print("     )                3. 🚪 EXIT                           )       ")
+        print("    (                  Quit the game                       (       ")
         print("    (                                                      (       ")
         print("    /\''''''''''''''''''''''''''''''''''''''''''''''''''''''\      ")
         print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
         print("    \/______________________________________________________/      ")
         print('')
-        choice = input("Do you want to continue? ( Y | N ): ")
-
-        if choice.upper() == "Y":
+        
+        choice = input("Select an option (1-3): ")
+        
+        if choice == "1":
             clear_screen()
-            print("Starting adventure...")
+            print("Starting new adventure...")
             time.sleep(1)
             
             character = choose_class_menu()
@@ -61,12 +69,25 @@ def main_menu():
                 print("Your adventure begins now!")
                 time.sleep(2)
                 character_menu(character)
-        elif choice.upper() == "N":
+                
+        elif choice == "2":
+            character = load_game_menu()
+            if character:
+                clear_screen()
+                print(f"Welcome back, {character.name}!")
+                print("Continuing your adventure...")
+                time.sleep(2)
+                character_menu(character)
+            else:
+                # Если загрузка отменена, остаемся в главном меню
+                continue
+                
+        elif choice == "3":
             print("Goodbye!")
             time.sleep(1)
             sys.exit()
         else:
-            print("Invalid choice! Please enter Y or N.")
+            print("Invalid choice! Please enter 1-3.")
             time.sleep(1)
 
 
@@ -182,14 +203,22 @@ def character_menu(character):
         print("    (                  View and upgrade skills             (       ")
         print("     )                                                     )       ")
         print("    (                                                      (       ")
-        print("     )                5. 🏠 RETURN TO MAIN MENU             )       ")
+        print("     )                5. 💾 SAVE GAME                       )       ")
+        print("    (                  Save your progress                  (       ")
+        print("     )                                                     )       ")
+        print("    (                                                      (       ")
+        print("     )                6. 📂 LOAD GAME                       )       ")
+        print("    (                  Load saved progress                 (       ")
+        print("     )                                                     )       ")
+        print("    (                                                      (       ")
+        print("     )                7. 🏠 RETURN TO MAIN MENU             )       ")
         print("    (                                                      (       ")
         print("    /\''''''''''''''''''''''''''''''''''''''''''''''''''''''\      ")
         print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
         print("    \/______________________________________________________/      ")
         print('')
         
-        choice = input("Select an option (1-5): ")
+        choice = input("Select an option (1-7): ")
         
         if choice == "1":
             explore_menu(character)
@@ -201,6 +230,14 @@ def character_menu(character):
         elif choice == "4":
             skills_menu(character)
         elif choice == "5":
+            save_game_menu(character)
+        elif choice == "6":
+            loaded_character = load_game_menu()
+            if loaded_character:
+                character = loaded_character
+                print(f"Loaded {character.name}!")
+                time.sleep(2)
+        elif choice == "7":
             return
         else:
             print("Invalid choice!")
@@ -493,3 +530,208 @@ def upgrade_skill_menu(character):
         print("Please enter a number!")
     
     time.sleep(2)
+
+
+def save_game_menu(character):
+    """Меню сохранения игры"""
+    while True:
+        clear_screen()
+        print("     _______________________________________________________       ")
+        print("    /\                                                      \      ")
+        print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+        print("    \/''''''''''''''''''''''''''''''''''''''''''''''''''''''/      ")
+        print("    (                                                      (       ")
+        print("    (                    💾 SAVE GAME                      (       ")
+        print("     )                                                     )       ")
+        print("    (                                                      (       ")
+        
+        # Показать существующие сохранения
+        saves = save_system.get_save_files()
+        if saves:
+            print("     )            EXISTING SAVES:                      )       ")
+            for i, save in enumerate(saves[:5], 1):  # Показываем только 5 последних
+                save_name = save['filename'].replace('.rpg_save', '')
+                date_str = save['modified'].strftime("%Y-%m-%d %H:%M")
+                print(f"    (          {i}. {save_name:<20} {date_str}  (       ")
+        else:
+            print("     )            No saved games found                )       ")
+        
+        print("     )                                                     )       ")
+        print("    (                1. QUICK SAVE                         (       ")
+        print("     )                 (Auto-named)                        )       ")
+        print("    (                2. NAMED SAVE                         (       ")
+        print("     )                 (Choose name)                       )       ")
+        print("    (                3. BACK                               (       ")
+        print("    /\''''''''''''''''''''''''''''''''''''''''''''''''''''''\      ")
+        print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+        print("    \/______________________________________________________/      ")
+        print('')
+        
+        choice = input("Select an option (1-3): ")
+        
+        if choice == "1":
+            success, message = save_system.save_game(character, "auto")
+            print(f"\n{message}")
+            time.sleep(2)
+            return
+        elif choice == "2":
+            named_save_menu(character)
+            return
+        elif choice == "3":
+            return
+        else:
+            print("Invalid choice!")
+            time.sleep(1)
+
+
+def named_save_menu(character):
+    """Меню именованного сохранения"""
+    clear_screen()
+    print("     _______________________________________________________       ")
+    print("    /\                                                      \      ")
+    print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+    print("    \/''''''''''''''''''''''''''''''''''''''''''''''''''''''/      ")
+    print("    (                                                      (       ")
+    print("    (                NAMED SAVE                            (       ")
+    print("     )                                                     )       ")
+    print("    (                                                      (       ")
+    print("     )         Enter save name:                            )       ")
+    print("    (          (letters, numbers, underscores only)       (       ")
+    print("    /\''''''''''''''''''''''''''''''''''''''''''''''''''''''\      ")
+    print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+    print("    \/______________________________________________________/      ")
+    print('')
+    
+    while True:
+        save_name = input("Save name: ").strip()
+        
+        if not save_name:
+            print("Save name cannot be empty!")
+            continue
+        
+        # Проверяем допустимость имени файла
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', save_name):
+            print("Invalid save name! Use only letters, numbers, underscores and hyphens.")
+            continue
+        
+        success, message = save_system.save_game(character, save_name)
+        print(f"\n{message}")
+        time.sleep(2)
+        return
+
+
+def load_game_menu():
+    """Меню загрузки игры"""
+    while True:
+        clear_screen()
+        print("     _______________________________________________________       ")
+        print("    /\                                                      \      ")
+        print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+        print("    \/''''''''''''''''''''''''''''''''''''''''''''''''''''''/      ")
+        print("    (                                                      (       ")
+        print("    (                   📂 LOAD GAME                       (       ")
+        print("     )                                                     )       ")
+        print("    (                                                      (       ")
+        
+        saves = save_system.get_save_files()
+        
+        if not saves:
+            print("     )            No saved games found                )       ")
+            print("    (                                                      (       ")
+            print("     )                Press Enter to return               )       ")
+            print("    (                                                      (       ")
+            print("    /\''''''''''''''''''''''''''''''''''''''''''''''''''''''\      ")
+            print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+            print("    \/______________________________________________________/      ")
+            print('')
+            input("Press Enter to continue...")
+            return None
+        
+        print("     )            SELECT SAVE FILE:                       )       ")
+        
+        # Показываем сохранения
+        for i, save in enumerate(saves, 1):
+            save_name = save['filename'].replace('.rpg_save', '')
+            date_str = save['modified'].strftime("%m/%d %H:%M")
+            char_info = ""
+            
+            # Пытаемся получить информацию о персонаже
+            try:
+                character, _ = save_system.load_game(save['filename'])
+                if character:
+                    char_info = f"{character.name} Lvl {character.level}"
+            except:
+                pass
+            
+            if char_info:
+                print(f"    (          {i}. {save_name:<15} {char_info:<20} {date_str}  (       ")
+            else:
+                print(f"    (          {i}. {save_name:<15} {'':<20} {date_str}  (       ")
+        
+        print("     )                                                     )       ")
+        print("    (                0. BACK                                (       ")
+        print("    (                D. DELETE SAVE                         (       ")
+        print("    /\''''''''''''''''''''''''''''''''''''''''''''''''''''''\      ")
+        print("(O)===)><><><><><><><><><><><><><><><><><><><><><><><><><><><)==(O)")
+        print("    \/______________________________________________________/      ")
+        print('')
+        
+        choice = input("Select save (1-9, 0 to back, D to delete): ").upper()
+        
+        if choice == "0":
+            return None
+        elif choice == "D":
+            delete_save_menu(saves)
+            continue
+        else:
+            try:
+                choice_num = int(choice)
+                if 1 <= choice_num <= len(saves):
+                    selected_save = saves[choice_num - 1]
+                    character, message = save_system.load_game(selected_save['filename'])
+                    
+                    if character:
+                        print(f"\n{message}")
+                        return character
+                    else:
+                        print(f"\nFailed to load: {message}")
+                        time.sleep(2)
+                else:
+                    print("Invalid selection!")
+                    time.sleep(1)
+            except ValueError:
+                print("Invalid input!")
+                time.sleep(1)
+
+
+def delete_save_menu(saves):
+    """Меню удаления сохранения"""
+    print("\nSelect save to delete:")
+    for i, save in enumerate(saves, 1):
+        save_name = save['filename'].replace('.rpg_save', '')
+        date_str = save['modified'].strftime("%Y-%m-%d")
+        print(f"{i}. {save_name} ({date_str})")
+    
+    try:
+        choice = int(input("Enter number (0 to cancel): "))
+        if choice == 0:
+            return
+        
+        if 1 <= choice <= len(saves):
+            selected_save = saves[choice - 1]
+            confirm = input(f"Delete '{selected_save['filename']}'? (Y/N): ").upper()
+            
+            if confirm == "Y":
+                success, message = save_system.delete_save(selected_save['filename'])
+                print(message)
+                time.sleep(2)
+            else:
+                print("Deletion cancelled.")
+                time.sleep(1)
+        else:
+            print("Invalid selection!")
+            time.sleep(1)
+    except ValueError:
+        print("Invalid input!")
+        time.sleep(1)
